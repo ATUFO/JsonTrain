@@ -28,7 +28,7 @@
                 </el-tab-pane>
                 <el-tab-pane label="JS" name="js">
                     <el-input v-model="jst" @input="onJstChange" type="text">
-                        <template slot="prepend">this.</template>
+                        <template slot="prepend">data</template>
                     </el-input>
                 </el-tab-pane>
             </el-tabs>
@@ -58,7 +58,8 @@ export default {
         onJstChange() {
             console.log(this.xpath);
             try {
-                var result = eval("this.resourceJson."+this.jst)
+                var data = this.resourceJson
+                var result = eval("data"+this.jst)
                 if(typeof(result) === 'function'){
                     this.exJson = undefined
                 }else{

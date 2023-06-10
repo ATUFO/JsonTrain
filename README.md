@@ -7,7 +7,7 @@
 ![](./docs/Snipaste_2023-06-10_20-58-39.png)
 
 ### JS
-使用Javascript语法，输入框中的数据就是this
+使用Javascript语法，输入框中的数据就是data
 ![](./docs/Snipaste_2023-06-10_21-02-20.png)
 
 ## Todo
