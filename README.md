@@ -3,7 +3,7 @@
 ## 如何使用
 
 ### JsonPath
-使用[JsonPath语法](https://jsonpath.com/)
+使用[JsonPath语法](https://jsonpath.com/https://github.com/json-path/JsonPath)
 ![](./docs/Snipaste_2023-06-10_20-58-39.png)
 
 ### JS
