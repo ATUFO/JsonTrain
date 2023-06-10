@@ -4,9 +4,9 @@
             <span style="font-family: 'Lucida Sans';font-weight: bolder;font-size: x-large;margin: 0 10px;">
             JSON TRAIN
             </span>
-            <span style="float: right;margin-right: 20px;font-size: x-small;">
-                @Dov
-            </span>
+            <el-link target="_blank" type="success"  href="https://github.com/ATUFO/JsonTrain" style="float: right;margin-right: 20px;color: aliceblue;">
+                github
+            </el-link>
         </div>
         <div class="vje_container" style="margin-top:50px;">
             <div class="vje_src">
