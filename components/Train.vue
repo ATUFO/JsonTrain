@@ -1,8 +1,11 @@
 <template>
     <div style="width: 100%;">
-        <div style="width:100vw;background-color:#3883fa;color: aliceblue;position: absolute;left:0;top:0;padding: 10px;">
-            <span style="font-family: 'Lucida Sans';font-weight: bolder;font-size: x-large;">
+        <div style="display: flex;align-items: center;justify-content: space-between; height:50px;width:100vw;background-color:#3883fa;color: aliceblue;position: absolute;left:0;top:0;">
+            <span style="font-family: 'Lucida Sans';font-weight: bolder;font-size: x-large;margin: 0 10px;">
             JSON TRAIN
+            </span>
+            <span style="float: right;margin-right: 20px;font-size: x-small;">
+                @Dov
             </span>
         </div>
         <div class="vje_container" style="margin-top:50px;">
@@ -84,7 +87,6 @@ export default {
 </script>
 <style>
 .vje_container {
-    padding: 0 10px;
     display: flex;
     width: 100%;
     height: 70vh;
