@@ -4,7 +4,7 @@
 
 ### JsonPath
 使用[JsonPath语法](https://jsonpath.com/)
-![](./docs\Snipaste_2023-06-10_20-58-39.png)
+![](./docs/Snipaste_2023-06-10_20-58-39.png)
 
 ### JS
 使用Javascript语法，输入框中的数据就是this
