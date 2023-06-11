@@ -28,7 +28,7 @@
                 </el-tab-pane>
                 <el-tab-pane label="JS" name="js">
                     <el-autocomplete v-model="jst" @input="onJstChange" :fetch-suggestions="querySearch"  @focus="handleFocus" @select="handleSelect" type="text" style="width: 100%;">
-                        <template slot="prepend">data</template>
+                        <template slot="prepend">data.</template>
                         <template slot-scope="{ item }">{{ item.word }}</template>
                     </el-autocomplete>
                 </el-tab-pane>
@@ -85,8 +85,9 @@ export default {
         onJstChange() {
             console.log(this.xpath);
             try {
+                
                 var data = this.resourceJson
-                var result = eval("data"+this.jst)
+                var result = eval("data."+this.jst)
                 if(typeof(result) === 'function'){
                     this.exJson = undefined
                 }else{
@@ -118,7 +119,7 @@ export default {
         querySearch(queryString, cb,e) {
             let key = ""
             let matchStr = ""
-            let dot = 0
+            let dot = -1
 
             for (let i = this.cursorIndex(); i >= 0; i--) {
                 if(this.jst[i]=='.' || this.jst[i]==' '){
@@ -127,7 +128,7 @@ export default {
                     break
                 }
             }   
-            if(dot != 0){
+            if(dot != -1){
                 for (let i = dot-1; i >= 0; i--) {
                     if(this.jst[i]=='.' || this.jst[i]==' '){
                         key = this.jst.substring(i+1,dot)
