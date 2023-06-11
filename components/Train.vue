@@ -121,8 +121,8 @@ export default {
             let matchStr = ""
             let dot = -1
 
-            for (let i = this.cursorIndex(); i >= 0; i--) {
-                if(this.jst[i]=='.' || this.jst[i]==' '){
+            for (let i = this.cursorIndex()-1; i >= 0; i--) {
+                if(this.jst[i]=='.' || this.jst[i]==' ' || this.jst[i]==';'){
                     matchStr = this.jst.substring(i+1,this.cursorIndex())
                     dot = i
                     break
