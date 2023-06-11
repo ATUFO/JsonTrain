@@ -28,7 +28,7 @@
                 </el-tab-pane>
                 <el-tab-pane label="JS" name="js">
                     <el-autocomplete v-model="jst" @input="onJstChange" :fetch-suggestions="querySearch"  @focus="handleFocus" @select="handleSelect" type="text" style="width: 100%;">
-                        <template slot="prepend">data.</template>
+                        <template slot="prepend">data</template>
                         <template slot-scope="{ item }">{{ item.word }}</template>
                     </el-autocomplete>
                 </el-tab-pane>
@@ -79,7 +79,7 @@ export default {
                     }
                 }   
             }
-            deepVisit("root",val)
+            deepVisit("data",val)
             console.log(this.completeWord)
         },
         onJstChange() {
@@ -87,7 +87,7 @@ export default {
             try {
                 
                 var data = this.resourceJson
-                var result = eval("data."+this.jst)
+                var result = eval("data"+this.jst)
                 if(typeof(result) === 'function'){
                     this.exJson = undefined
                 }else{
@@ -129,31 +129,32 @@ export default {
                 }
             }   
             if(dot != -1){
-                for (let i = dot-1; i >= 0; i--) {
-                    if(this.jst[i]=='.' || this.jst[i]==' '){
-                        key = this.jst.substring(i+1,dot)
-                        break
-                    }else if(i==0){
-                        key = this.jst.substring(i,dot)
+                if(dot!=0){
+                    for (let i = dot-1; i >= 0; i--) {
+                        if(this.jst[i]=='.' || this.jst[i]==' ' || this.jst[i]==';'){
+                            key = this.jst.substring(i+1,dot)
+                            break
+                        }
+                    } 
+                }else{
+                    key="data"
+                }
+
+                 
+                
+                if(key != ""){
+                    console.log(key,matchStr,dot);
+                    var results = this.completeWord?.[key]
+                    if(results){
+                        results = Array.from(results).map(word=>({value: this.jst.substring(0,dot+1)+word, word:word,distance:utils.editDistance(word,matchStr)}))
+                        results = results.sort((a,b)=>a.distance-b.distance)
+                    }else{
+                        results = []
                     }
-                }  
-            }else{
-                key = "root"
-                matchStr=this.jst
+
+                    cb(results);
+                }
             }
-                   
-
-            console.log(key,matchStr,dot);
-            var results = this.completeWord?.[key]
-            if(results){
-                results = Array.from(results).map(word=>({value: this.jst.substring(0,dot+1)+word, word:word,distance:utils.editDistance(word,matchStr)}))
-                results = results.sort((a,b)=>a.distance-b.distance)
-            }else{
-                results = []
-            }
-
-
-            cb(results);
         },
 
         handleSelect(item){
