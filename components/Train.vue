@@ -27,9 +27,10 @@
                     </el-input>
                 </el-tab-pane>
                 <el-tab-pane label="JS" name="js">
-                    <el-input v-model="jst" @input="onJstChange" type="text">
+                    <el-autocomplete v-model="jst" @input="onJstChange" :fetch-suggestions="querySearch"  @focus="handleFocus" @select="handleSelect" type="text" style="width: 100%;">
                         <template slot="prepend">data</template>
-                    </el-input>
+                        <template slot-scope="{ item }">{{ item.word }}</template>
+                    </el-autocomplete>
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -38,6 +39,8 @@
 <script>
 import vueJsonEditor from 'vue-json-editor'
 import jp from "jsonpath"
+import utils from "./utils"
+
 export default {
     name: "Train",
     components: { vueJsonEditor },
@@ -50,14 +53,39 @@ export default {
             exJson: undefined
         }
     },
+
+    completeWord: {},
+    srcElement : "",
+
     methods: {
         onJsonSave() { },
         onJsonChange(val) {
             console.log(val);
+            this.completeWord={}
+
+            var deepVisit = (key,node)=>{
+                if(typeof node === "object"){
+                    if(this.completeWord[key]==null){
+                        this.completeWord[key]=new Set()
+                    }
+                    
+                    for( var i in node ) {  
+                        if(node instanceof Array){
+                            deepVisit(key, node[i])
+                        }else{
+                            this.completeWord[key].add(i)
+                            deepVisit(i,node[i])
+                        }
+                    }
+                }   
+            }
+            deepVisit("data",val)
+            console.log(this.completeWord)
         },
         onJstChange() {
             console.log(this.xpath);
             try {
+                
                 var data = this.resourceJson
                 var result = eval("data"+this.jst)
                 if(typeof(result) === 'function'){
@@ -81,7 +109,57 @@ export default {
                 this.exJson = undefined
             }
         },
-        onError() { }
+        onError() { },
+        handleFocus(e){
+            this.srcElement = e.srcElement
+        },
+        cursorIndex(){
+            return this.srcElement?.selectionStart ? this.srcElement.selectionStart : 0
+        },
+        querySearch(queryString, cb,e) {
+            let key = ""
+            let matchStr = ""
+            let dot = -1
+
+            for (let i = this.cursorIndex()-1; i >= 0; i--) {
+                if(this.jst[i]=='.' || this.jst[i]==' ' || this.jst[i]==';'){
+                    matchStr = this.jst.substring(i+1,this.cursorIndex())
+                    dot = i
+                    break
+                }
+            }   
+            if(dot != -1){
+                if(dot!=0){
+                    for (let i = dot-1; i >= 0; i--) {
+                        if(this.jst[i]=='.' || this.jst[i]==' ' || this.jst[i]==';'){
+                            key = this.jst.substring(i+1,dot)
+                            break
+                        }
+                    } 
+                }else{
+                    key="data"
+                }
+
+                 
+                
+                if(key != ""){
+                    console.log(key,matchStr,dot);
+                    var results = this.completeWord?.[key]
+                    if(results){
+                        results = Array.from(results).map(word=>({value: this.jst.substring(0,dot+1)+word, word:word,distance:utils.editDistance(word,matchStr)}))
+                        results = results.sort((a,b)=>a.distance-b.distance)
+                    }else{
+                        results = []
+                    }
+
+                    cb(results);
+                }
+            }
+        },
+
+        handleSelect(item){
+            
+        }
     }
 
 }
