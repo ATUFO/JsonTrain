@@ -40,7 +40,7 @@
 import vueJsonEditor from 'vue-json-editor'
 import jp from "jsonpath"
 import utils from "./utils"
-
+import _ from "loadsh"
 export default {
     name: "Train",
     components: { vueJsonEditor },
