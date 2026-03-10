@@ -1,49 +1,77 @@
 <template>
-    <div style="width: 100%;">
-        <div style="display: flex;align-items: center;justify-content: space-between; height:50px;width:100vw;background-color:#3883fa;color: aliceblue;position: absolute;left:0;top:0;">
-            <span style="font-family: 'Lucida Sans';font-weight: bolder;font-size: x-large;margin: 0 10px;">
-            JSON TRAIN
-            </span>
-            <el-link target="_blank" type="success"  href="https://github.com/ATUFO/JsonTrain" style="float: right;margin-right: 20px;color: aliceblue;">
-                github
-            </el-link>
-        </div>
-        <div class="vje_container" style="margin-top:50px;">
-            <div class="vje_src">
-                <vue-json-editor style="height: 100%;" v-model="resourceJson" :showBtns="false" :mode="'code'"
-                    @json-change="onJsonChange" @json-save="onJsonSave" @has-error="onError" />
+    <div class="train-page">
+        <header class="app-header">
+            <span class="app-title">JSON TRAIN</span>
+            <nav class="app-nav">
+                <nuxt-link class="nav-link" to="/">Train</nuxt-link>
+                <nuxt-link class="nav-link" to="/diff">Diff</nuxt-link>
+                <a class="nav-link nav-link--external" target="_blank" rel="noopener" href="https://github.com/ATUFO/JsonTrain">GitHub</a>
+            </nav>
+        </header>
+        <main class="train-main">
+            <div class="editors-row">
+                <div class="editor-panel editor-panel--left">
+                    <div class="editor-panel__label">输入 JSON</div>
+                    <div class="editor-panel__body">
+                        <vue-json-editor
+                            class="json-editor"
+                            v-model="resourceJson"
+                            :showBtns="false"
+                            :mode="'code'"
+                            @json-change="onJsonChange"
+                            @json-save="onJsonSave"
+                            @has-error="onError"
+                        />
+                    </div>
+                </div>
+                <div class="editors-center">
+                    <el-button
+                        type="primary"
+                        :disabled="exJson === undefined"
+                        @click="applyResultToLeft"
+                    >
+                        结果覆盖到左侧
+                    </el-button>
+                </div>
+                <div class="editor-panel editor-panel--right">
+                    <div class="editor-panel__label">结果</div>
+                    <div class="editor-panel__body">
+                        <vue-json-editor
+                            class="json-editor"
+                            v-model="exJsonForEditor"
+                            :showBtns="false"
+                            :mode="'code'"
+                            @json-change="onJsonChange"
+                            @json-save="onJsonSave"
+                            @has-error="onError"
+                        />
+                    </div>
+                </div>
             </div>
-            <div class="vje_center">
-                <el-button
-                    type="primary"
-                    plain
-                    :disabled="exJson === undefined"
-                    @click="applyResultToLeft"
-                >
-                    结果覆盖到左侧
-                </el-button>
+            <div class="query-section">
+                <el-tabs v-model="tab" type="card" class="query-tabs">
+                    <el-tab-pane label="JsonPath" name="jsonpath">
+                        <el-input v-model="xpath" @input="onPathChange" placeholder="例如: .data.list">
+                            <template slot="prepend">$</template>
+                        </el-input>
+                    </el-tab-pane>
+                    <el-tab-pane label="JS" name="js">
+                        <el-autocomplete
+                            v-model="jst"
+                            @input="onJstChange"
+                            :fetch-suggestions="querySearch"
+                            @focus="handleFocus"
+                            @select="handleSelect"
+                            placeholder="例如: .filter(x => x.id > 0)"
+                            style="width: 100%;"
+                        >
+                            <template slot="prepend">data</template>
+                            <template slot-scope="{ item }">{{ item.word }}</template>
+                        </el-autocomplete>
+                    </el-tab-pane>
+                </el-tabs>
             </div>
-            <div class="vje_ex">
-                <vue-json-editor height="100" style="height: 100%;" v-model="exJsonForEditor" :showBtns="false" :mode="'code'"
-                    @json-change="onJsonChange" @json-save="onJsonSave" @has-error="onError" />
-            </div>
-        </div>
-        <br>
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <el-tabs v-model="tab" type="card">
-                <el-tab-pane label="JsonPath" name="jsonpath">
-                    <el-input v-model="xpath" @input="onPathChange" type="text">
-                        <template slot="prepend">$</template>
-                    </el-input>
-                </el-tab-pane>
-                <el-tab-pane label="JS" name="js">
-                    <el-autocomplete v-model="jst" @input="onJstChange" :fetch-suggestions="querySearch"  @focus="handleFocus" @select="handleSelect" type="text" style="width: 100%;">
-                        <template slot="prepend">data</template>
-                        <template slot-scope="{ item }">{{ item.word }}</template>
-                    </el-autocomplete>
-                </el-tab-pane>
-            </el-tabs>
-        </div>
+        </main>
     </div>
 </template>
 <script>
@@ -229,23 +257,107 @@ export default {
 
 }
 </script>
-<style>
-.vje_container {
+<style scoped>
+.train-page {
+    min-height: 100vh;
+    background: #f5f7fa;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    padding: 0 20px;
+    background: linear-gradient(135deg, #3883fa 0%, #2563eb 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(56, 131, 250, 0.25);
+}
+
+.app-title {
+    font-family: 'Lucida Sans', 'Segoe UI', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.nav-link:hover,
+.nav-link.nuxt-link-active {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link--external {
+    margin-left: 8px;
+}
+
+.train-main {
+    padding: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.editors-row {
     display: flex;
     width: 100%;
-    height: 70vh;
-    justify-content: space-around;
+    height: 72vh;
+    min-height: 320px;
+    gap: 12px;
     align-items: stretch;
+    margin-bottom: 16px;
 }
 
-.vje_ex,
-.vje_src {
-    width: 100%;
+.editor-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.editor-panel__label {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #303133;
+    background: #fafafa;
+    border-bottom: 1px solid #ebeef5;
+}
+
+.editor-panel__body {
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+}
+
+.json-editor {
     height: 100%;
-    margin: 10px;
 }
 
-.vje_center {
+.json-editor >>> .jsoneditor-vue {
+    height: 100%;
+    border: 1px solid #e4e7ed;
+    border-radius: 6px;
+}
+
+.editors-center {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -253,7 +365,18 @@ export default {
     padding: 0 8px;
 }
 
-.jsoneditor-vue {
-    height: 100%;
+.query-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.query-tabs {
+    max-width: 640px;
+}
+
+.query-tabs >>> .el-tabs__header {
+    margin-bottom: 12px;
 }
 </style>
