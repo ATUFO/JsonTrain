@@ -23,8 +23,8 @@
                     结果覆盖到左侧
                 </el-button>
             </div>
-            <div class="vje_ex" v-if="exJson != undefined">
-                <vue-json-editor height="100" style="height: 100%;" v-model="exJson" :showBtns="false" :mode="'code'"
+            <div class="vje_ex">
+                <vue-json-editor height="100" style="height: 100%;" v-model="exJsonForEditor" :showBtns="false" :mode="'code'"
                     @json-change="onJsonChange" @json-save="onJsonSave" @has-error="onError" />
             </div>
         </div>
@@ -66,6 +66,17 @@ export default {
 
     completeWord: {},
     srcElement : "",
+
+    computed: {
+        exJsonForEditor: {
+            get() {
+                return this.exJson !== undefined ? this.exJson : {}
+            },
+            set(val) {
+                this.exJson = val
+            }
+        }
+    },
 
     methods: {
         onJsonSave() { },
