@@ -180,6 +180,12 @@ export default {
         onPathChange() {
             console.log(this.xpath);
 
+            // 如果以字母开头，自动加上点号
+            if (this.xpath && /^[a-zA-Z]/.test(this.xpath)) {
+                this.xpath = '.' + this.xpath
+                return
+            }
+
             this.showEx = this.xpath !== ''
             var p = "$" + this.xpath
             try {
