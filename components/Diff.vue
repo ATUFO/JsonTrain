@@ -9,34 +9,39 @@
             </nav>
         </header>
         <main class="diff-main">
-            <div class="diff-editors">
-                <div class="editor-panel">
-                    <div class="editor-panel__label">JSON A（旧）</div>
-                    <div class="editor-panel__body">
-                        <vue-json-editor
-                            class="json-editor"
-                            v-model="textb"
-                            :showBtns="false"
-                            :mode="'code'"
-                            @json-change="onJsonChange"
-                            @json-save="onJsonSave"
-                            @has-error="onError"
-                        />
+            <div class="diff-editors-wrapper">
+                <div class="diff-editors" :style="{ height: editorsHeight + 'px' }">
+                    <div class="editor-panel">
+                        <div class="editor-panel__label">JSON A（旧）</div>
+                        <div class="editor-panel__body">
+                            <vue-json-editor
+                                class="json-editor"
+                                v-model="textb"
+                                :showBtns="false"
+                                :mode="'code'"
+                                @json-change="onJsonChange"
+                                @json-save="onJsonSave"
+                                @has-error="onError"
+                            />
+                        </div>
+                    </div>
+                    <div class="editor-panel">
+                        <div class="editor-panel__label">JSON B（新）</div>
+                        <div class="editor-panel__body">
+                            <vue-json-editor
+                                class="json-editor"
+                                v-model="texta"
+                                :showBtns="false"
+                                :mode="'code'"
+                                @json-change="onJsonChange"
+                                @json-save="onJsonSave"
+                                @has-error="onError"
+                            />
+                        </div>
                     </div>
                 </div>
-                <div class="editor-panel">
-                    <div class="editor-panel__label">JSON B（新）</div>
-                    <div class="editor-panel__body">
-                        <vue-json-editor
-                            class="json-editor"
-                            v-model="texta"
-                            :showBtns="false"
-                            :mode="'code'"
-                            @json-change="onJsonChange"
-                            @json-save="onJsonSave"
-                            @has-error="onError"
-                        />
-                    </div>
+                <div class="diff-resizer" @mousedown="startResize">
+                    <div class="diff-resizer-handle"></div>
                 </div>
             </div>
             <div class="diff-toolbar">
@@ -69,10 +74,22 @@ export default {
             outputFormat: 'side-by-side',
             xDiffResult:'',
             full:false,
-            sort:true
+            sort:true,
+            editorsHeight: 350,
+            isResizing: false,
+            startY: 0,
+            startHeight: 0
         }
-    }
-    , methods: {
+    },
+    mounted() {
+        document.addEventListener('mousemove', this.handleResize)
+        document.addEventListener('mouseup', this.stopResize)
+    },
+    beforeDestroy() {
+        document.removeEventListener('mousemove', this.handleResize)
+        document.removeEventListener('mouseup', this.stopResize)
+    },
+    methods: {
         handleDiff(){
             this.oldStr =JSON.stringify(this.textb,null,2)
             this.newStr =JSON.stringify(this.texta,null,2)
@@ -90,7 +107,25 @@ export default {
         },
         onJsonChange() { },
         onJsonSave() { },
-        onError() { }
+        onError() { },
+        startResize(e) {
+            this.isResizing = true
+            this.startY = e.clientY
+            this.startHeight = this.editorsHeight
+            document.body.style.cursor = 'row-resize'
+            document.body.style.userSelect = 'none'
+        },
+        handleResize(e) {
+            if (!this.isResizing) return
+            const delta = e.clientY - this.startY
+            this.editorsHeight = Math.max(200, this.startHeight + delta)
+        },
+        stopResize() {
+            if (!this.isResizing) return
+            this.isResizing = false
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+        }
     }
 }
 </script>
@@ -98,6 +133,9 @@ export default {
 .diff-page {
     min-height: 100vh;
     background: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .app-header {
@@ -146,13 +184,21 @@ export default {
     padding: 20px;
     max-width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.diff-editors-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
 }
 
 .diff-editors {
     display: flex;
     gap: 12px;
-    margin-bottom: 16px;
-    height: 38vh;
     min-height: 200px;
 }
 
@@ -165,6 +211,27 @@ export default {
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+}
+
+.diff-resizer {
+    height: 10px;
+    cursor: row-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+.diff-resizer-handle {
+    width: 40px;
+    height: 4px;
+    background: #c0c4cc;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.diff-resizer:hover .diff-resizer-handle {
+    background: #409eff;
 }
 
 .editor-panel__label {
@@ -205,6 +272,10 @@ export default {
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .diff-result-label {
@@ -219,11 +290,11 @@ export default {
 .diff-result {
     margin: 0;
     padding: 16px;
-    min-height: 40vh;
-    max-height: 50vh;
+    flex: 1;
     overflow: auto;
     font-size: 13px;
     line-height: 1.5;
+    min-height: 0;
 }
 
 .diff-result code {
