@@ -85,7 +85,7 @@ export default {
     data() {
         return {
             tab:'jsonpath',
-            resourceJson: {},
+            resourceJson: undefined,
             xpath: "",
             jst:"",
             exJson: undefined
@@ -130,6 +130,13 @@ export default {
             }
             deepVisit("data",val)
             console.log(this.completeWord)
+
+            // 如果 jsonpath 或 js 路径不为空，则按路径取值
+            if (this.tab === 'jsonpath' && this.xpath) {
+                this.onPathChange()
+            } else if (this.tab === 'js' && this.jst) {
+                this.onJstChange()
+            }
         },
         onJstChange() {
             console.log(this.xpath);
