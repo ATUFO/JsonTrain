@@ -14,6 +14,7 @@
                     <div class="editor-panel__label">输入 JSON</div>
                     <div class="editor-panel__body">
                         <vue-json-editor
+                            ref="leftEditor"
                             class="json-editor"
                             v-model="resourceJson"
                             :showBtns="false"
@@ -51,7 +52,7 @@
             <div class="query-section">
                 <el-tabs v-model="tab" type="card" class="query-tabs">
                     <el-tab-pane label="JsonPath" name="jsonpath">
-                        <el-input v-model="xpath" @input="onPathChange" placeholder="例如: .data.list">
+                        <el-input v-model="xpath" @input="onPathChange" placeholder="例如: .data.list" lang="en" spellcheck="false">
                             <template slot="prepend">$</template>
                         </el-input>
                     </el-tab-pane>
@@ -64,6 +65,8 @@
                             @select="handleSelect"
                             placeholder="例如: .filter(x => x.id > 0)"
                             style="width: 100%;"
+                            lang="en"
+                            spellcheck="false"
                         >
                             <template slot="prepend">data</template>
                             <template slot-scope="{ item }">{{ item.word }}</template>
@@ -85,7 +88,7 @@ export default {
     data() {
         return {
             tab:'jsonpath',
-            resourceJson: undefined,
+            resourceJson: "",
             xpath: "",
             jst:"",
             exJson: undefined
@@ -104,6 +107,15 @@ export default {
                 this.exJson = val
             }
         }
+    },
+
+    mounted() {
+        // 清空编辑器内容
+        this.$nextTick(() => {
+            if (this.$refs.leftEditor && this.$refs.leftEditor.editor) {
+                this.$refs.leftEditor.editor.setText('')
+            }
+        })
     },
 
     methods: {
